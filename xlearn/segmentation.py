@@ -77,7 +77,7 @@ def _get_seg_kwargs():
         'nor_slice': False
     }
 
-def seg_train(img_x, img_y, **kwargs):
+def seg_train(img_x, img_y, weights, **kwargs):
     """
     Function description.
 
@@ -133,8 +133,8 @@ def seg_train(img_x, img_y, **kwargs):
     patch_shape = (kwargs['patch_size'], kwargs['patch_size'])
     # print img_x.shape
     # print img_x.max(), img_x.min()
-    img_x = nor_data(img_x)
-    img_y = nor_data(img_y)
+    # img_x = nor_data(img_x)
+    # img_y = nor_data(img_y)
     # print(img_x.shape)
     # print(img_x.max(), img_x.min())
     # print(img_y.max(), img_y.min())
@@ -152,8 +152,10 @@ def seg_train(img_x, img_y, **kwargs):
 
 
     # print(mdl.summary())
-    mdl.fit(train_x, train_y, batch_size=kwargs['batch_size'], epochs=kwargs['epoch_nb'])
-    return mdl
+    checkpoint_filepath = weights
+    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_filepath, save_weights_only=True, monitor='val_loss', mode='min', save_best_only=True, verbose=0, save_freq="epoch")
+    history = mdl.fit(train_x, train_y, batch_size=kwargs['batch_size'], epochs=kwargs['epoch_nb'], validation_split = 0.2,callbacks=[model_checkpoint])
+    return history, mdl, checkpoint_filepath
 
 def seg_predict(img, wpath, spath, **kwargs):
     """
@@ -232,8 +234,8 @@ def seg_predict(img, wpath, spath, **kwargs):
             print('Processing the %s th image' % i)
             tstart = time.time()
             predict_x = img[i]
-            if nor_slice:
-                predict_x=nor_data(predict_x)
+#            if nor_slice:
+#                predict_x=nor_data(predict_x)
             predict_y = pred_single(mdl, predict_x, ih, iw, patch_shape, kwargs['patch_step'],
                                     kwargs['patch_size'], kwargs['batch_size'])
             predict_y = np.float32(predict_y)
@@ -255,5 +257,3 @@ def pred_single(mdl, predict_x, ih, iw, patch_shape, patch_step, patch_size, bat
     predict_y = np.reshape(predict_y, (predict_y.shape[0], patch_size, patch_size))
     predict_y = reconstruct_patches(predict_y, (ih, iw), patch_step)
     return predict_y
-
-
