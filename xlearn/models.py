@@ -88,10 +88,10 @@ def classifier(ih, iw, nb_conv, size_conv, nb_classes):
         Number of convolution kernels for each layer
 
     size_conv : int
-        The size of convolution kernel 
+        The size of convolution kernel
     Returns
     -------
-    mdl 
+    mdl
         Description.
 
     """
@@ -180,7 +180,7 @@ def transformer2(ih, iw, nb_conv, size_conv, lr):
     # if nb_gpu > 1:
     #     mdl = multi_gpu_model(mdl, nb_gpu)
     opt = keras.optimizers.Adam(learning_rate=lr)
-    mdl.compile(loss='mse', optimizer=opt)
+    mdl.compile(loss='mse', metrics='mae', optimizer=opt)
 
     return mdl
 
@@ -240,7 +240,7 @@ def transformer3_pooling(ih, iw, nb_conv, size_conv, lr):
     fc2 = Conv2DTranspose(nb_conv * 8, (size_conv, size_conv), activation='relu', padding='same')(fc2)
 
     up1 = concatenate([UpSampling2D(size=(2, 2))(fc2), conv3], axis=3)
-    
+
     conv6 = Conv2DTranspose(nb_conv * 2, (size_conv, size_conv), activation='relu', padding='same')(up1)
     conv6 = Conv2DTranspose(nb_conv * 2, (size_conv, size_conv), activation='relu', padding='same')(conv6)
 
@@ -261,7 +261,7 @@ def transformer3_pooling(ih, iw, nb_conv, size_conv, lr):
     #     mdl = multi_gpu_model(mdl, nb_gpu)
 
     opt = keras.optimizers.Adam(learning_rate=lr)
-    mdl.compile(loss='mse', optimizer=opt)
+    mdl.compile(loss='mse', metrics='mae', optimizer=opt)
     return mdl
 
 
@@ -316,11 +316,11 @@ def transformer3_super(ih, iw, nb_conv, size_conv):
 
     fc2 = Conv2DTranspose(nb_conv * 4, (size_conv, size_conv), activation='relu', padding='same')(fc1)
     fc2 = Conv2DTranspose(nb_conv * 8, (size_conv, size_conv), trides=(2, 2), activation='relu', padding='same')(fc2)
-    
+
     up1 = concatenate([fc2, conv3], axis=3)
 
     conv6 = Conv2DTranspose(nb_conv * 2, (size_conv, size_conv), activation='relu', padding='same')(up1)
-    conv6 = Conv2DTranspose(nb_conv * 2, (size_conv, size_conv), strides=(2, 2), 
+    conv6 = Conv2DTranspose(nb_conv * 2, (size_conv, size_conv), strides=(2, 2),
                             activation='relu', padding='same')(conv6)
 
     up2 = concatenate([conv6, conv2], axis=3)
