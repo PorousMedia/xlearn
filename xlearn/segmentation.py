@@ -213,7 +213,7 @@ def seg_predict(img, wpath, spath, **kwargs):
     strategy = tf.distribute.MirroredStrategy()
     print("Number of devices: {}".format(strategy.num_replicas_in_sync))
     patch_shape = (kwargs['patch_size'], kwargs['patch_size'])
-    img = np.float32(nor_data(img))
+    # img = np.float32(nor_data(img))
     mdl = model_choose(kwargs['patch_size'], kwargs['patch_size'], kwargs['conv_nb'],
                        kwargs['conv_size'], kwargs['model_layers'], kwargs['lr'])
     # with strategy.scope():
